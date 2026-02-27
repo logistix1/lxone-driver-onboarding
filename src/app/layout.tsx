@@ -6,6 +6,7 @@ import "react-datepicker/dist/react-datepicker.css"
 import { Toaster } from "@/components/Toaster"
 import OnboardingLayoutClient from "@/features/registration/components/OnboardingLayoutClient"
 import { RegistrationProvider } from "@/context/RegisterationContext"
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
   title: "Lx1",
@@ -49,6 +50,7 @@ export default function RootLayout({
           {children}
         </NuqsAdapter>
         {/* </ThemeProvider> */}
+        <Analytics />
       </body>
     </html>
   )
