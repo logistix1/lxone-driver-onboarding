@@ -1,5 +1,24 @@
-import Link from "next/link"
+"use client"
+
 import React from "react"
+import Link from "next/link"
+
+const PRIVACY_POLICY_URL = "https://www.logistix.one/privacy-policy"
+
+function openPrivacyPolicyPopup() {
+  const popup = window.open(
+    PRIVACY_POLICY_URL,
+    "lx1-privacy-policy",
+    "popup=yes,width=980,height=760,resizable=yes,scrollbars=yes",
+  )
+
+  if (popup) {
+    popup.focus()
+    return
+  }
+
+  window.open(PRIVACY_POLICY_URL, "_blank", "noopener,noreferrer")
+}
 
 export default function Footer() {
   return (
@@ -10,7 +29,14 @@ export default function Footer() {
       </div>
       <div>© 2025 All Rights Reserved. Eva Auto Transport LLC</div>
       <div>
-        <Link href={"/privacy"} className="text-blue-500">
+        <Link
+          href={PRIVACY_POLICY_URL}
+          className="text-blue-500"
+          onClick={(e) => {
+            e.preventDefault()
+            openPrivacyPolicyPopup()
+          }}
+        >
           Privacy Policy.
         </Link>
       </div>

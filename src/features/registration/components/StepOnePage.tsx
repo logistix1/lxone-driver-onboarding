@@ -28,6 +28,8 @@ interface CheckedItems {
   [categoryId: string]: boolean
 }
 
+const PRIVACY_POLICY_URL = "https://www.logistix.one/privacy-policy"
+
 export default function StepOnePage({token}:{token:string}) {
   const [checkedItems] = React.useState<CheckedItems>({})
   const [loading, setLoading] = React.useState(false)
@@ -46,20 +48,33 @@ export default function StepOnePage({token}:{token:string}) {
     }, 400)
   }
 
+  const openPrivacyPolicyPopup = () => {
+    const popup = window.open(
+      PRIVACY_POLICY_URL,
+      "lx1-privacy-policy",
+      "popup=yes,width=980,height=760,resizable=yes,scrollbars=yes",
+    )
+
+    if (popup) {
+      popup.focus()
+      return
+    }
+
+    window.open(PRIVACY_POLICY_URL, "_blank", "noopener,noreferrer")
+  }
+
   return (
     <main className="mx-auto p-3 pt-20">
-      <form onSubmit={handleSubmit} className="w-full">
+      <form onSubmit={handleSubmit} className="w-full" noValidate>
         <div>
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold dark:text-gray-400">
-            <InfoIcon className="text-blue-500" />{" "}
-            <span className="flex">
-              <span>Registration conditions, </span>
-              <ModalRegistration>
-                <span className="mt-4 w-full cursor-pointer gap-2 text-blue-500 sm:mt-0 sm:w-fit">
-                  click here!
-                </span>
-              </ModalRegistration>
-            </span>
+          <h2 className="mb-4 flex flex-wrap items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <InfoIcon className="size-5 shrink-0 text-blue-500" />
+            <span>Registration conditions,</span>
+            <ModalRegistration>
+              <span className="cursor-pointer font-semibold text-blue-600 underline underline-offset-2">
+                click here
+              </span>
+            </ModalRegistration>
           </h2>
           <h2 className="mb-4 text-lg font-semibold dark:text-gray-400">
             Company info
@@ -501,7 +516,14 @@ export default function StepOnePage({token}:{token:string}) {
             <Checkbox className="h-4 w-4 rounded border-gray-300" required />
             <span className="text-sm dark:text-gray-400">
               I have read and agree to the{" "}
-              <Link href={"/privacy"} className="text-blue-500">
+              <Link
+                href={PRIVACY_POLICY_URL}
+                className="text-blue-500"
+                onClick={(e) => {
+                  e.preventDefault()
+                  openPrivacyPolicyPopup()
+                }}
+              >
                 Privacy Policy
               </Link>{" "}
               and{" "}

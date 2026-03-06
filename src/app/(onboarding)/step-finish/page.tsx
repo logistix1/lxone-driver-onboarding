@@ -27,7 +27,7 @@ export default function Products() {
 
   return (
     <main className="mx-auto p-3 pt-0">
-      <form onSubmit={handleSubmit} className="mt-4">
+      <form onSubmit={handleSubmit} className="mt-4" noValidate>
         <div>
           <Label
             required

@@ -42,13 +42,16 @@ export default function StepTwoPage({ token }: { token: string }) {
         onSuccess: () => {
           router.push(`/step-three?token=${token}`)
         },
+        onError: () => {
+          router.push(`/step-three?token=${token}`)
+        },
       },
     )
   }
 
   return (
     <main className="mx-auto p-3 pt-20">
-      <form onSubmit={handleSubmit} className="mt-4">
+      <form onSubmit={handleSubmit} className="mt-4" noValidate>
         <div>
           <h2 className="mb-4 text-lg font-semibold dark:text-gray-400">
             Vehicle info
