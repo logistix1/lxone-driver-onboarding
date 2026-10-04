@@ -11,7 +11,7 @@ interface CheckedItems {
 }
 
 export default function Products() {
-  const [checkedItems, setCheckedItems] = React.useState<CheckedItems>({})
+  const [checkedItems] = React.useState<CheckedItems>({})
   const [loading, setLoading] = React.useState(false)
 
   const isAnyItemChecked = Object.values(checkedItems).some(Boolean)

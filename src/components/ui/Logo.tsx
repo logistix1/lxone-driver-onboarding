@@ -1,5 +1,4 @@
 import * as React from "react";
-import logo from "../../../public/eva_logo.png"
 import type { SVGProps } from "react";
 const Logo = (props: SVGProps<SVGSVGElement>) => (
   <svg fill="none" stroke="currentColor" viewBox="0 0 48 44" {...props}>

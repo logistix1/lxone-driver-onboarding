@@ -4,8 +4,6 @@ import React from "react"
 import "./globals.css"
 import "react-datepicker/dist/react-datepicker.css"
 import { Toaster } from "@/components/Toaster"
-import OnboardingLayoutClient from "@/features/registration/components/OnboardingLayoutClient"
-import { RegistrationProvider } from "@/context/RegisterationContext"
 
 export const metadata = {
   title: "Lx1",

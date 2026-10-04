@@ -1,9 +1,21 @@
 export type Driver = {
+  same_as_owner_address?: boolean;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  country?: "US" | "CA" | null;
+  license_country?: "US" | "CA" | null;
   full_name: string;
   phone_number: string;
+  license_number: string;
+  license_state: string;
+  license_type: string;
+  license_expiration_date: string;
 };
 
 export type Vehicle = {
+  registration_country?: "US" | "CA" | null;
   length: string;
   width: string;
   height: string;
@@ -19,6 +31,10 @@ export type Vehicle = {
 };
 
 export type Company = {
+  canadian_business_number?: string;
+  canadian_tax_id?: string;
+  canadian_business_type?: "sole_proprietor" | "corporation" | "partnership" | "other";
+  country?: "US" | "CA" | null;
   company_name: string;
   owner_first_name: string;
   owner_second_name: string;

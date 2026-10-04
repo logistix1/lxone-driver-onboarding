@@ -30,42 +30,6 @@ interface Props {
 async function uploadFileToS3(file: File): Promise<UploadedFileInfo> {
   const timestamp = Date.now()
   const uniqueName = `${timestamp}_${file.name.trim().replace(/\s+/g, "_")}`
-  console.log(uniqueName, "uniq")
-  function getMimeType(file: File): string {
-    if (file.type) return file.type // brauzer aniqlasa to‘g‘ridan-to‘g‘ri ishlatamiz
-
-    const extension = file.name.split(".").pop()?.toLowerCase()
-
-    switch (extension) {
-      case "jpg":
-      case "jpeg":
-        return "image/jpeg"
-      case "png":
-        return "image/png"
-      case "gif":
-        return "image/gif"
-      case "webp":
-        return "image/webp"
-      case "heic":
-        return "image/heic" // iPhone
-      case "heif":
-        return "image/heif"
-      case "pdf":
-        return "application/pdf"
-      case "doc":
-        return "application/msword"
-      case "docx":
-        return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      case "xls":
-        return "application/vnd.ms-excel"
-      case "xlsx":
-        return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      case "zip":
-        return "application/zip"
-      default:
-        return "application/octet-stream" // fallback
-    }
-  }
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/generate-presigned-url/?filename=${encodeURIComponent(uniqueName)}&expiration=3600`,
@@ -79,7 +43,6 @@ async function uploadFileToS3(file: File): Promise<UploadedFileInfo> {
     throw new Error(`Failed to fetch presigned URL: ${res.statusText}`)
   const { presigned_url, content_type } = await res.json()
   if (!presigned_url) throw new Error("Presigned URL not provided")
-  const mimeType = getMimeType(file)
   const uploadRes = await fetch(presigned_url, {
     method: "PUT",
     body: file,
@@ -225,7 +188,7 @@ export default function ImageUploader({
 
   return (
     <div className="relative rounded-md p-2">
-      <style jsx global>{`
+      <style>{`
         .custom-icon-container {
           position: absolute;
           top: 8px;
@@ -268,13 +231,13 @@ export default function ImageUploader({
         credits={false}
         server={{
           process: async (
-            fieldName,
+            _fieldName,
             file,
-            metadata,
+            _metadata,
             load,
             error,
-            progress,
-            abort,
+            _progress,
+            _abort,
           ) => {
             try {
               const data = await uploadFileToS3(file as File)
@@ -303,11 +266,11 @@ export default function ImageUploader({
                 setFileMetadata([{ url, name: fileName }])
               }
             } catch (err) {
-              error(`Upload failed: ${err.message}`)
+              error(`Upload failed: ${err instanceof Error ? err.message : "Unknown error"}`)
             }
             return { abort: () => error("Upload aborted") }
           },
-          load: (source, load, error, progress, abort) => {
+          load: (source, load, error, _progress, abort) => {
             fetch(source)
               .then((r) => r.blob())
               .then((blob) => load(blob))

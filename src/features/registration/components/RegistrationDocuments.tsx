@@ -10,13 +10,11 @@ export interface DocumentFile {
 export default function RegistrationDocuments({
   data = [],
   onChangeDocuments,
-  update = false,
 }: {
   data?: DocumentFile[]
   onChangeDocuments?: (docs: DocumentFile[]) => void
   update?: boolean
 }) {
-  console.log(data, "doc")
   const [documents, setDocuments] = useState<DocumentFile[]>(data)
   const previousDocumentsRef = useRef<DocumentFile[]>(data)
 

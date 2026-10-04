@@ -1,12 +1,10 @@
 "use client"
 import { Button } from "@/components/Button"
 import { Label } from "@/components/Label"
-import { useBusinessType } from "@/features/registration/hooks/useBusinessType"
-import { useStates } from "@/features/registration/hooks/useState"
 
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
-import React, { useState } from "react"
+import React from "react"
 
 const RegistrationDocuments = dynamic(
   () =>
@@ -16,25 +14,14 @@ const RegistrationDocuments = dynamic(
   },
 )
 
-interface Category {
-  id: string
-  title: string
-  subcategories: string[]
-}
-
 interface CheckedItems {
   [categoryId: string]: boolean
 }
 
 export default function Products() {
-  const [checkedItems, setCheckedItems] = React.useState<CheckedItems>({})
+  const [checkedItems] = React.useState<CheckedItems>({})
   const [loading, setLoading] = React.useState(false)
   const router = useRouter()
-  const { states, isLoadingState } = useStates()
-  const [step, setStep] = useState(1)
-  const [taxExempt, setTaxExempt] = useState(false)
-  const { businessTypes } = useBusinessType()
-  const [businessType, setBusinessType] = useState("")
 
   const isAnyItemChecked = Object.values(checkedItems).some(Boolean)
 

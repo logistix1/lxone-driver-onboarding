@@ -9,7 +9,6 @@ import {
 } from "@/components/Dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
 import { Button } from "@/components/Button"
-import { ArrowLeft, ArrowRightLeft } from "lucide-react"
 
 export type ModalAddUserProps = {
   children: React.ReactNode

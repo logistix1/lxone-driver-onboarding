@@ -1,4 +1,6 @@
 "use client"
+import { CountrySelect } from "@/components/CountrySelect"
+import { changeAddressCountry, regionOptions, normalizePostal } from "@/lib/northAmerica"
 import { Button } from "@/components/Button"
 import { Checkbox } from "@/components/Checkbox"
 import { Input } from "@/components/Input"
@@ -33,6 +35,7 @@ const PRIVACY_POLICY_URL = "https://www.logistix.one/privacy-policy"
 export default function StepOnePage({token}:{token:string}) {
   const [checkedItems] = React.useState<CheckedItems>({})
   const [loading, setLoading] = React.useState(false)
+  const [addressError, setAddressError] = useState("")
   const router = useRouter()
   const { states, isLoadingState } = useStates()
   const [taxExempt, setTaxExempt] = useState(false)
@@ -42,6 +45,12 @@ export default function StepOnePage({token}:{token:string}) {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!e.currentTarget.reportValidity()) return
+    if (data.country) {
+      try { updateData({ zip_code: normalizePostal(data.zip_code, data.country) }) }
+      catch (error) { setAddressError(error instanceof Error ? error.message : "Invalid postal code"); return }
+    }
+    setAddressError("")
     setLoading(true)
     setTimeout(() => {
       router.push(`/step-two?token=${token}`)
@@ -65,7 +74,8 @@ export default function StepOnePage({token}:{token:string}) {
 
   return (
     <main className="mx-auto p-3 pt-20">
-      <form onSubmit={handleSubmit} className="w-full" noValidate>
+      <form onSubmit={handleSubmit} className="w-full">
+        {addressError && <p role="alert" className="text-red-600">{addressError}</p>}
         <div>
           <h2 className="mb-4 flex flex-wrap items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
             <InfoIcon className="size-5 shrink-0 text-blue-500" />
@@ -79,6 +89,8 @@ export default function StepOnePage({token}:{token:string}) {
           <h2 className="mb-4 text-lg font-semibold dark:text-gray-400">
             Company info
           </h2>
+          <CountrySelect label="Company address country" value={data.country}
+            onChange={(country) => updateData(changeAddressCountry(country))} />
           <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
               <Label
@@ -166,6 +178,23 @@ export default function StepOnePage({token}:{token:string}) {
             </div>
 
             {/* Employer ID */}
+            {data.country === "CA" ? <>
+              <div><Label htmlFor="canadian-business-number">Canadian business number</Label>
+                <Input id="canadian-business-number" value={data.canadian_business_number || ""}
+                  inputMode="numeric" pattern="[0-9]{9}" maxLength={9}
+                  onChange={(e) => updateData({ canadian_business_number: e.target.value })} /></div>
+              <div><Label htmlFor="canadian-tax-id">Canadian tax identifier</Label>
+                <Input id="canadian-tax-id" maxLength={32} value={data.canadian_tax_id || ""}
+                  onChange={(e) => updateData({ canadian_tax_id: e.target.value })} /></div>
+              <div><Label htmlFor="canadian-business-type">Business type</Label>
+                <select id="canadian-business-type" className="w-full rounded border p-2"
+                  value={data.canadian_business_type || ""}
+                  onChange={(e) => updateData({ canadian_business_type: e.target.value as typeof data.canadian_business_type })}>
+                  <option value="">Select business type</option>
+                  <option value="sole_proprietor">Sole proprietor</option><option value="corporation">Corporation</option>
+                  <option value="partnership">Partnership</option><option value="other">Other</option>
+                </select></div>
+            </> : <>
             <div>
               <Label className="mb-1 block text-sm font-medium text-gray-700">
                 Employer ID number
@@ -214,6 +243,7 @@ export default function StepOnePage({token}:{token:string}) {
               </Select>
             </div>
 
+            </>}
             {/* ZIP Code */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
@@ -223,7 +253,10 @@ export default function StepOnePage({token}:{token:string}) {
                 >
                   ZIP code
                 </Label>
-                <ZipCodeSelect
+                {data.country === "CA" ? <Input aria-label="Postal code" required
+                  pattern="[ABCEGHJ-NPRSTVXYabceghj-nprstvxy][0-9][ABCEGHJ-NPRSTV-Zabceghj-nprstv-z] ?[0-9][ABCEGHJ-NPRSTV-Zabceghj-nprstv-z][0-9]"
+                  value={data.zip_code} placeholder="A1A 1A1"
+                  onChange={(e) => updateData({ zip_code: e.target.value })} /> : <ZipCodeSelect
                   value={data.zip_code}
                   onSelect={(item) => {
                     updateData({
@@ -232,7 +265,7 @@ export default function StepOnePage({token}:{token:string}) {
                       city: item.city,
                     })
                   }}
-                />
+                />}
               </div>
 
               {/* State */}
@@ -261,7 +294,7 @@ export default function StepOnePage({token}:{token:string}) {
                         Loading...
                       </div>
                     ) : (
-                      states?.results?.map(
+                      regionOptions(data.country, states?.results)?.map(
                         (option: {
                           id: number
                           short_name: string
@@ -279,7 +312,7 @@ export default function StepOnePage({token}:{token:string}) {
             </div>
           </div>
           <div className="mt-5 grid grid-cols-2 sm:grid-cols-1">
-            {data.business_type == "6" && (
+            {data.country !== "CA" && data.business_type == "6" && (
               <div className="mb-4">
                 <Label
                   className="mb-1 block text-sm font-medium text-gray-700"
@@ -311,7 +344,7 @@ export default function StepOnePage({token}:{token:string}) {
                 </Select>
               </div>
             )}
-            {data.business_type == "7" && (
+            {data.country !== "CA" && data.business_type == "7" && (
               <div className="mb-4">
                 <Label
                   className="mb-1 block text-sm font-medium text-gray-700"

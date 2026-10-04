@@ -29,8 +29,17 @@ const defaultData: Company = {
   fatca_reporting_code: "",
   title:"",
   driver: {
+    same_as_owner_address: false,
+    address: "",
+    city: "",
+    state: "",
+    zip_code: "",
     full_name: "",
     phone_number: "",
+    license_number: "",
+    license_state: "",
+    license_type: "",
+    license_expiration_date: "",
   },
   vehicle: {
     length: "",

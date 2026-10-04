@@ -1,7 +1,9 @@
 "use client"
 import { Button } from "@/components/Button"
+import { CountrySelect } from "@/components/CountrySelect"
 import { Input } from "@/components/Input"
 import { Label } from "@/components/Label"
+import MaskedInput from "@/components/MaskedInput"
 import { MultiSelect } from "@/components/MultiSelect"
 import {
   SelectContent,
@@ -26,24 +28,12 @@ export default function StepTwoPage({ token }: { token: string }) {
   const { mutate, isPending } = useCreateRegisteration()
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const item = {
-      ...data,
-      driver: {
-        ...data.driver,
-        full_name: data.company_name,
-        phone_number: data.company_phone,
-      },
-      emergency_phone_number: data.company_phone,
-      owner_phone: data.company_phone,
-    }
+    if (isPending || !e.currentTarget.reportValidity()) return
     mutate(
-      { item, token: token },
+      { item: data, token },
       {
         onSuccess: () => {
-          router.push(`/step-three?token=${token}`)
-        },
-        onError: () => {
-          router.push(`/step-three?token=${token}`)
+          router.push(`/step-three?token=${encodeURIComponent(token)}`)
         },
       },
     )
@@ -51,12 +41,78 @@ export default function StepTwoPage({ token }: { token: string }) {
 
   return (
     <main className="mx-auto p-3 pt-20">
-      <form onSubmit={handleSubmit} className="mt-4" noValidate>
+      <form onSubmit={handleSubmit} className="mt-4">
+        <section className="mb-6">
+          <h2 className="mb-4 text-lg font-semibold dark:text-gray-400">Driver information</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <CountrySelect label="License country" value={data.driver.license_country}
+              onChange={(license_country) => updateData({ driver: { ...data.driver, license_country, license_state: "" } })} />
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={data.driver.same_as_owner_address === true}
+                onChange={(e) => updateData({ driver: { ...data.driver, same_as_owner_address: e.target.checked } })} />
+              Driver address is the same as owner address
+            </label>
+            {data.driver.same_as_owner_address === false && <>
+              <CountrySelect label="Driver address country" value={data.driver.country}
+                onChange={(country) => updateData({ driver: { ...data.driver, country, state: "", zip_code: "" } })} />
+              {([ ["address", "Driver street address"], ["city", "Driver city"],
+                ["state", "Driver state / province"], ["zip_code", "Driver ZIP / postal code"] ] as const).map(([field, label]) =>
+                <div key={field}>
+                  <Label htmlFor={`driver-${field}`} required>{label}</Label>
+                  <Input id={`driver-${field}`} required value={data.driver[field] || ""}
+                    onChange={(e) => updateData({ driver: { ...data.driver, [field]: e.target.value } })} />
+                </div>)}
+            </>}
+            <div>
+              <Label htmlFor="driver-name" required>Driver full name</Label>
+              <Input id="driver-name" required value={data.driver.full_name}
+                onChange={(e) => updateData({ driver: { ...data.driver, full_name: e.target.value } })} />
+            </div>
+            <div>
+              <Label htmlFor="driver-phone" required>Driver phone</Label>
+              <MaskedInput id="driver-phone" required mask="+1 (000) 000-0000"
+                pattern={"\\+1 ?\\(?[0-9]{3}\\)? ?[0-9]{3}-?[0-9]{4}"} value={data.driver.phone_number}
+                onChange={(value) => updateData({ driver: { ...data.driver, phone_number: value } })} />
+            </div>
+            <div>
+              <Label htmlFor="license-number" required>License number</Label>
+              <Input id="license-number" required value={data.driver.license_number}
+                onChange={(e) => updateData({ driver: { ...data.driver, license_number: e.target.value } })} />
+            </div>
+            <div>
+              <Label htmlFor="license-state" required>License state / province</Label>
+              <Input id="license-state" required value={data.driver.license_state}
+                onChange={(e) => updateData({ driver: { ...data.driver, license_state: e.target.value } })} />
+            </div>
+            <div>
+              <Label htmlFor="license-type" required>License class</Label>
+              <Input id="license-type" required value={data.driver.license_type}
+                onChange={(e) => updateData({ driver: { ...data.driver, license_type: e.target.value } })} />
+            </div>
+            <div>
+              <Label htmlFor="license-expiry" required>License expiration date</Label>
+              <Input id="license-expiry" required type="date" value={data.driver.license_expiration_date}
+                onChange={(e) => updateData({ driver: { ...data.driver, license_expiration_date: e.target.value } })} />
+            </div>
+            <div>
+              <Label htmlFor="owner-phone" required>Owner phone</Label>
+              <MaskedInput id="owner-phone" required mask="+1 (000) 000-0000" value={data.owner_phone}
+                onChange={(value) => updateData({ owner_phone: value })} />
+            </div>
+            <div>
+              <Label htmlFor="emergency-phone">Emergency contact phone</Label>
+              <MaskedInput id="emergency-phone" required={false} mask="+1 (000) 000-0000"
+                value={data.emergency_phone_number} onChange={(value) => updateData({ emergency_phone_number: value })} />
+            </div>
+          </div>
+        </section>
         <div>
           <h2 className="mb-4 text-lg font-semibold dark:text-gray-400">
             Vehicle info
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <CountrySelect label="Registration country" value={data.vehicle.registration_country}
+              onChange={(registration_country) => updateData({ vehicle: { ...data.vehicle, registration_country } })} />
             <div>
               <Label required>Make and Model</Label>
               <Input
@@ -311,6 +367,7 @@ export default function StepTwoPage({ token }: { token: string }) {
             className="mt-4 w-full disabled:bg-gray-200 disabled:text-gray-500"
             type="submit"
             aria-disabled={isPending}
+            disabled={isPending}
             isLoading={isPending}
           >
             {isPending ? "Submitting..." : "Continue"}

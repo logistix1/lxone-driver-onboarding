@@ -1,7 +1,6 @@
 "use client"
 import { Logo } from "@/components/ui/Logo"
 import Footer from "@/features/registration/components/Footer"
-import useScroll from "@/lib/useScroll"
 import { cx } from "@/lib/utils"
 import QueryProvider from "@/providers/ReactQuery"
 import { Mail, Phone } from "lucide-react"
@@ -63,8 +62,6 @@ const Layout = ({
 }: Readonly<{
   children: React.ReactNode
 }>) => {
-  const scrolled = useScroll(15)
-
   return (
     <>
       <header
